@@ -8,13 +8,37 @@
  * Note: Jack compilers implement multiplication and division using OS method calls.
  */
 class Math {
+    static Array binaryInts;
 
     /** Initializes the library. */
     function void init() {
+        let binaryInts = Array.new(16);
+        let binaryInts[0] = 1;
+        let binaryInts[1] = 2;
+        let binaryInts[2] = 4;
+        let binaryInts[3] = 8;
+        let binaryInts[4] = 16;
+        let binaryInts[5] = 32;
+        let binaryInts[6] = 64;
+        let binaryInts[7] = 128;
+        let binaryInts[8] = 256;
+        let binaryInts[9] = 512;
+        let binaryInts[10] = 1024;
+        let binaryInts[11] = 2048;
+        let binaryInts[12] = 4096;
+        let binaryInts[13] = 8192;
+        let binaryInts[14] = 16384;
+        let binaryInts[15] = -1-32767;
+
+        return;
     }
 
     /** Returns the absolute value of x. */
     function int abs(int x) {
+        if (x < 0) {
+            return -x;
+        }
+        return x;
     }
 
     /** Returns the product of x and y. 
@@ -23,6 +47,28 @@ class Math {
      *  the Jack expressions x*y and multiply(x,y) return the same value.
      */
     function int multiply(int x, int y) {
+        var int result, shifted, i;
+
+        let i = 0;
+        let result = 0;
+        let shifted = x;
+
+        while (i < 16) {
+            if (Math.bit(y, i) = 1) {
+                let result = result + shifted;
+            }
+            let i = i + 1;
+            let shifted = shifted + shifted;
+        }
+
+        return result;
+    }
+
+    function boolean bit(int x, int i) {
+        if (binaryInts[i] & x = 0) {
+            return 0;
+        }
+        return 1;
     }
 
     /** Returns the integer part of x/y.
@@ -31,17 +77,91 @@ class Math {
      *  the Jack expressions x/y and divide(x,y) return the same value.
      */
     function int divide(int x, int y) {
+        var boolean negative_x, negative_y;
+        var int result;
+
+        if (x < 0) {
+            let negative_x = true;
+            let x = -x;
+        } else {
+            let negative_x = false;
+        }
+
+        if (y < 0) {
+            let negative_y = true;
+            let y = -y;
+        } else {
+            let negative_y = false;
+        }
+
+        let result = Math.divide_positive(x, y);
+
+        if (negative_x & negative_y) {
+            return result;
+        }
+
+        if (negative_x | negative_y) {
+            return -result;
+        }
+
+        return result;  
+    }
+
+    function int divide_positive(int x, int y) {
+        var int q;
+
+        if ((y > x) | (y < 0)) {
+            return 0;
+        }
+
+        let q = Math.divide_positive(x, 2 * y);
+
+        if (x - (2 * q  * y) < y) {
+            return 2 * q;
+        }
+
+        return (2 * q) + 1;
+
     }
 
     /** Returns the integer part of the square root of x. */
     function int sqrt(int x) {
+        var int min, max, value;
+
+        let min = 0;
+        let max = Math.min(x / 2, 182);
+        let value = max / 2;
+
+        while (max > (min + 1)) {
+            if ((value * value) = x) {
+                return value;
+            }
+
+            if ((value * value) > x) {
+                let max = value;
+            } else {
+                let min = value;
+            }
+
+            let value = ((max - min) / 2) + min;
+        }
+
+        return value;
     }
 
     /** Returns the greater number. */
     function int max(int a, int b) {
+        if (a > b) {
+            return a;
+        }
+        return b;
     }
 
     /** Returns the smaller number. */
     function int min(int a, int b) {
+        if (a < b) {
+            return a;
+        }
+        return b;
     }
 }
