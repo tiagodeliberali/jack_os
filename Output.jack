@@ -283,17 +283,10 @@ class Output {
      *  and advances the cursor appropriately. */
     function void printInt(int i) {
         var String s;
-        var int j;
 
         let s = String.new(6);
         do s.setInt(i);
-
-        let j = 0;
-
-        while (j < s.length()) {
-            do Output.printChar(s.charAt(j));
-            let j = j + 1;
-        }
+        do Output.printString(s);
 
         return;
     }
