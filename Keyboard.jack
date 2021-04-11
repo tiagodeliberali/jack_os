@@ -10,6 +10,7 @@ class Keyboard {
 
     /** Initializes the keyboard. */
     function void init() {
+        return;
     } 
 
     /**
@@ -33,6 +34,7 @@ class Keyboard {
      * F1 - F12 = 141 - 152
      */
     function char keyPressed() {
+        return Memory.peek(24576);
     }
 
     /**								
@@ -41,6 +43,21 @@ class Keyboard {
      * of the pressed key.
      */
     function char readChar() {
+        var char key;
+
+        let key = Keyboard.keyPressed();
+
+        while (key = 0) {
+            let key = Keyboard.keyPressed();
+        }
+
+        do Output.printChar(key);
+
+        while (~(Keyboard.keyPressed() = 0)) {
+            // do nothing
+        }
+        
+        return key;
     }
 
     /**								
@@ -49,7 +66,56 @@ class Keyboard {
      * and returns its value. Also handles user backspaces.
      */
     function String readLine(String message) {
-    }   
+        var char key;
+        var String result;
+        var int size, maxSize;
+
+        let size = 0;
+        let maxSize = 5;
+
+        let result = String.new(maxSize);
+
+        do Output.printString(message);
+        let key = Keyboard.readChar();
+
+        while (~(key = 128)) {
+            if (key = 129) {
+                do result.eraseLastChar();
+                let size = size - 1;
+            } else {
+                do result.appendChar(key);
+                let size = size + 1;
+            }
+
+            if (maxSize < (size + 1)) {
+                let maxSize = maxSize * 2;
+                let result = Keyboard.doubleStringSize(result);
+            }
+
+            let key = Keyboard.readChar();
+        }
+
+        return result;
+    }
+
+    function String doubleStringSize(String current) {
+        var int maxSize, i;
+        var String temp;
+
+        let maxSize = current.length() * 2;
+        let temp = String.new(maxSize);
+
+        let i = 0;
+
+        while (i < current.length()) {
+            do temp.appendChar(current.charAt(i));
+            let i = i + 1; 
+        }
+
+        do current.dispose();
+
+        return temp;
+    }
 
     /**								
      * Displays the message on the screen, reads from the keyboard the entered
@@ -58,5 +124,10 @@ class Keyboard {
      * entered text is detected). Also handles user backspaces. 
      */
     function int readInt(String message) {
+        var String result;
+
+        let result = Keyboard.readLine(message);
+
+        return result.intValue();
     }
 }
