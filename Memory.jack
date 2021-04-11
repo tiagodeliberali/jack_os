@@ -9,26 +9,76 @@
  * consists of 32,768 words, each holding a 16-bit binary number.
  */ 
 class Memory {
+    static Array addr;
+    static int freeList;
 
     /** Initializes the class. */
     function void init() {
+        let addr = 0;
+        let freeList = 2048;
+
+        let addr[freeList] = 0;
+        let addr[freeList + 1] = 14334;
+
+        return;
     }
 
     /** Returns the RAM value at the given address. */
     function int peek(int address) {
+        return addr[address];
     }
 
     /** Sets the RAM value at the given address to the given value. */
     function void poke(int address, int value) {
+        let addr[address] = value;
+        return;
     }
 
     /** Finds an available RAM block of the given size and returns
      *  a reference to its base address. */
     function int alloc(int size) {
+        var int next, previous, base;
+
+        let next = freeList;
+        let previous = 0;
+
+        while (addr[next + 1] < (size + 2)) {
+            if (addr[next] = 0) {
+                do Sys.error(1);
+            }
+
+            let previous = next;
+            let next = addr[next];
+        }
+
+        // replace free block by a used one
+        if (addr[next + 1] = (size + 2)) {
+            if (previous = 0) {
+                let freeList = addr[next];
+            } else {
+                let addr[previous] = addr[next];
+            }
+            
+            let addr[next] = 0;
+
+            return next + 2;
+        }
+
+        // set some space inside block
+        let base = next + addr[next + 1] - size;
+        let addr[base] = 0;
+        let addr[base + 1] = size;
+        let addr[next + 1] = addr[next + 1] - 2 - size;
+
+        return base + 2;
     }
 
     /** De-allocates the given object (cast as an array) by making
      *  it available for future allocations. */
     function void deAlloc(Array o) {
+        let addr[o - 2] = freeList;
+        let freeList = o - 2;
+
+        return;
     }    
 }
