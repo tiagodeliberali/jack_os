@@ -11,54 +11,162 @@
  * string-oriented operations.
  */
 class String {
+    field int size;
+    field Array value;
 
     /** constructs a new empty string with a maximum length of maxLength
      *  and initial length of 0. */
     constructor String new(int maxLength) {
+        let size = 0;
+        if (maxLength > 0) {
+            let value = Array.new(maxLength);
+        }
+        
+        return this;
     }
 
     /** Disposes this string. */
     method void dispose() {
+        if (value > 0) {
+            do value.dispose();
+        }
+
+        do Memory.deAlloc(this);
+        return;
     }
 
     /** Returns the current length of this string. */
     method int length() {
+        if (value = 0) {
+            do Sys.error(99);
+        }
+
+        return size;
     }
 
     /** Returns the character at the j-th location of this string. */
     method char charAt(int j) {
+        if (value = 0) {
+            do Sys.error(99);
+        }
+
+        return value[j];
     }
 
     /** Sets the character at the j-th location of this string to c. */
     method void setCharAt(int j, char c) {
+        if (value = 0) {
+            do Sys.error(99);
+        }
+
+        let value[j] = c;
+        return;
     }
 
     /** Appends c to this string's end and returns this string. */
     method String appendChar(char c) {
+        if (value = 0) {
+            do Sys.error(99);
+        }
+
+        let value[size] = c;
+        let size = size + 1;
+        return this;
     }
 
     /** Erases the last character from this string. */
     method void eraseLastChar() {
+        if (value = 0) {
+            do Sys.error(99);
+        }
+
+        let size = size - 1;
+        let value[size] = 0;
+        return;
     }
 
     /** Returns the integer value of this string, 
      *  until a non-digit character is detected. */
     method int intValue() {
+        var int result, i, factor;
+
+        if (value = 0) {
+            do Sys.error(99);
+        }
+
+        let result = 0;
+        let i = 0;
+
+        if (value[0] = 45) {
+            let i = i + 1;
+            let factor = -1;
+        } else {
+            let factor = 1;
+        }
+
+        while (i < size) {
+            if ((value[i] > 47) & (value[i] < 58)) {
+                let result = (result * 10) + value[i] - 48;
+            } else {
+                return result * factor;
+            }
+            let i = i + 1;
+        }
+
+        return result * factor;
     }
 
     /** Sets this string to hold a representation of the given value. */
     method void setInt(int val) {
+        var int positive, partial, i;
+        var Array numbers;
+
+        if (value = 0) {
+            do Sys.error(99);
+        }
+
+        let positive = Math.abs(val);
+        let numbers = Array.new(5);
+        let i = 0;
+
+        while (positive > 0) {
+            let partial = positive - ((positive / 10) * 10);
+            let numbers[i] = partial;
+            let positive = positive / 10;
+            let i = i + 1;
+        }
+
+        // restart value array
+        while (size > 0) {
+            let size = size - 1;
+            let value[size] = 0;
+        }
+
+        // add minus symbol
+        if (val < 0) {
+            do appendChar(45);
+        }
+
+        while (i > 0) {
+            let i = i - 1;
+            do appendChar(numbers[i] + 48);
+        }
+
+        return;
     }
 
     /** Returns the new line character. */
     function char newLine() {
+        return 128;
     }
 
     /** Returns the backspace character. */
     function char backSpace() {
+        return 129;
     }
 
     /** Returns the double quote (") character. */
     function char doubleQuote() {
+        return 34;
     }
 }
