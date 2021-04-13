@@ -28,6 +28,8 @@ class Sys {
         while (true) {
             // do nothing
         }
+
+        return;
     }
 
     /** Waits approximately duration milliseconds and returns.  */
