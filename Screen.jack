@@ -10,34 +10,202 @@
  * the screen is indexed (0,0).
  */
 class Screen {
+    static boolean color;
+    static Array binaryInts;
 
     /** Initializes the Screen. */
     function void init() {
+        let color = true;
+
+        let binaryInts = Array.new(16);
+        let binaryInts[0] = 1;
+        let binaryInts[1] = 2;
+        let binaryInts[2] = 4;
+        let binaryInts[3] = 8;
+        let binaryInts[4] = 16;
+        let binaryInts[5] = 32;
+        let binaryInts[6] = 64;
+        let binaryInts[7] = 128;
+        let binaryInts[8] = 256;
+        let binaryInts[9] = 512;
+        let binaryInts[10] = 1024;
+        let binaryInts[11] = 2048;
+        let binaryInts[12] = 4096;
+        let binaryInts[13] = 8192;
+        let binaryInts[14] = 16384;
+        let binaryInts[15] = -1-32767;
+
+        return;
     }
 
     /** Erases the entire screen. */
     function void clearScreen() {
+        var int i;
+        let i = 16384;
+
+        while (i < 24576) {
+            do Memory.poke(i, false);
+            let i = i + 1;
+        }
+
+        return;
     }
 
     /** Sets the current color, to be used for all subsequent drawXXX commands.
      *  Black is represented by true, white by false. */
     function void setColor(boolean b) {
+        let color = b;
+        return;
     }
 
     /** Draws the (x,y) pixel, using the current color. */
     function void drawPixel(int x, int y) {
+        var int current, mod, address;
+
+        let mod = x - ((x / 16) * 16);
+        let address = 16384 + (y * 32) + (x / 16);
+
+        let current = Memory.peek(address);
+
+        if (color) {
+            let current = current | binaryInts[mod];
+        } else {
+            let current = current & (~binaryInts[mod]);
+        }        
+
+        do Memory.poke(address, current);
+
+        return;
     }
 
     /** Draws a line from pixel (x1,y1) to pixel (x2,y2), using the current color. */
     function void drawLine(int x1, int y1, int x2, int y2) {
+        var int dx, dy, x, y, endX, endY, partialY, rx, ry;
+        var boolean invertX, invertY;
+
+        if (y1 = y2) {
+            do Screen.drawHorizontal(x1, x2, y1);
+            return;
+        }
+
+        if (x1 = x2) {
+            do Screen.drawVertical(x1, y1, y2);
+            return;
+        }
+
+        if (y1 > y2) {
+            let invertY = true;
+        } else {
+            let invertY = false;
+        }
+
+        if (x1 > x2) {
+            let invertX = true;
+        } else {
+            let invertX = false;
+        }
+        
+        let dx = Math.abs(x1 - x2);
+        let dy = Math.abs(y1 - y2);
+
+        do Screen.drawPixel(x1, y1);
+        do Screen.drawPixel(x2, y2);
+
+        let x = 0;
+        let endX = dx;
+        let y = 0;
+        let endY = dy;
+
+        while ((x < endX) | (y < endY)) {
+            let partialY = ((x + 1) * dy) / dx;
+
+            if (((partialY < y) & (x < endX)) | (y = endY)) {
+                let x = x + 1;
+            } else {
+                let y = y + 1;
+            }
+
+            if (invertY) {
+                let ry = -y;
+            } else {
+                let ry = y;
+            }
+
+            if (invertX) {
+                let rx = -x;
+            } else {
+                let rx = x;
+            }
+
+            do Screen.drawPixel(x1 + rx, y1 + ry);
+        }
+
+        return;
+    }
+
+    function void drawHorizontal(int x1, int x2, int y) {
+        var int i, end;
+
+        let i = Math.min(x1, x2);
+        let end = Math.max(x1, x2);
+
+        while (~(i > end)) {
+            do Screen.drawPixel(i, y);
+            let i = i + 1;
+        }
+        return;
+    }
+
+    function void drawVertical(int x, int y1, int y2) {
+        var int i, end;
+
+        let i = Math.min(y1, y2);
+        let end = Math.max(y1, y2);
+
+        while (~(i > end)) {
+            do Screen.drawPixel(x, i);
+            let i = i + 1;
+        }
+        return;
     }
 
     /** Draws a filled rectangle whose top left corner is (x1, y1)
      * and bottom right corner is (x2,y2), using the current color. */
     function void drawRectangle(int x1, int y1, int x2, int y2) {
+        var int y, end;
+
+        let y = Math.min(y1, y2);
+        let end = Math.max(y1, y2);
+
+        while (~(y > end)) {
+            do Screen.drawHorizontal(x1, x2, y);
+            let y = y + 1;
+        }
+
+        return;
     }
 
     /** Draws a filled circle of radius r<=181 around (x,y), using the current color. */
     function void drawCircle(int x, int y, int r) {
+        var int partialY, partialX, r2;
+
+        if (r = 0) {
+            return;
+        }
+
+        let partialY = r - 1;
+        let r2 = r * r;
+
+        while (partialY > 0) {
+            let partialX = Math.sqrt(r2 - (partialY * partialY));
+            do Screen.drawHorizontal(x - partialX, x + partialX, y + partialY);
+            do Screen.drawHorizontal(x - partialX, x + partialX, y - partialY);
+            let partialY = partialY - 1;
+        }
+
+        // draw center of the circle, where partialY is zero
+        do Screen.drawHorizontal(x - r, x + r, y);
+
+        return;
     }
 }
